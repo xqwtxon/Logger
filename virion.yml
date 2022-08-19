@@ -1,0 +1,9 @@
+---
+name: Logger
+version: 0.0.1
+author: xqwtxon
+antigen: xqwtxon\Logger
+api: 4.0.0
+php: 8.0
+description: Logger for PocketMine-MP
+...

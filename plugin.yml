@@ -1,0 +1,9 @@
+---
+name: Logger
+version: 0.0.1
+author: xqwtxon
+api: 4.0.0
+main: xqwtxon\Logger
+src-namespace-prefix: xqwtxon
+description: Logger for PocketMine-MP
+...
