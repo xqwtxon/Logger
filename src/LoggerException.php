@@ -11,17 +11,8 @@ declare(strict_types=1);
 
 namespace xqwtxon\Logger;
 
-use Exception;
+use RuntimeException;
 
-class LoggerException extends Exception {
-    
-    private string $message;
-    
-    public function __construct(string $message){
-        //NOOP
-    }
-    
-    public function errorMessage() {
-        return $this->message;
-    }
+class LoggerException extends RuntimeException {
+    //NOOP
 }

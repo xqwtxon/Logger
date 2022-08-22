@@ -11,9 +11,11 @@ declare(strict_types=1);
 
 namespace xqwtxon\Logger;
 
-use pocketmine\plugin\PluginBase;
+use pocketmine\utils\Utils;
 
+use xqwtxon\Logger\LoggerBase;
 use xqwtxon\Logger\LoggerException;
+use xqwtxon\Logger\LoggerInterface;
 
 use DateTime;
 use function vsprintf;
@@ -21,13 +23,15 @@ use function file_put_contents;
 use function file_get_contents;
 use function file_exists;
 
-class Logger extends PluginBase {
+class Logger implements LoggerInterface {
     
     public const ALERT = 0;
     public const WARNING = 1;
     public const INFO = 2;
     public const ERROR = 3;
     public const CRITICAL = 4;
+    public const EMERGENCY = 5;
+    public const CUSTOM = 6;
     
     private bool $save = false;
     
@@ -36,34 +40,38 @@ class Logger extends PluginBase {
     public string $current_output = "server.%s";
     
     private string $date_format = "H:i:s.v";
-    private string $file_type;
+    private string $file_type = "log";
     private string $info = "INFO";
     private string $warning = "WARNING";
     private string $error = "ERROR";
     private string $alert = "ALERT";
     private string $critical = "CRITICAL";
+    private string $emergency = "EMERGENCY";
     private string $dataPath;
     
     /** @var self $instance */
     private static self $instance;
     
+    /**
+     * The constructor.
+     * @param string $dataPath
+     */
     public function __construct(string $dataPath){
         self::$instance = $this;
+        $this->plugin = LoggerBase::getInstance();
         $this->dataPath = $dataPath;
     }
     
     /**
      * Saves the logger.
-     * @return void
      */
-    public function save() :void{
-        if (file_exists($this->getLoggerPath())){
-            $this->renew();
-            $this->is_save = true;
-        } else {
+    public function save() : void{
+        if (!file_exists($this->getLoggerPath())){
             $this->new();
-            $this->is_save = true;
+            return;
         }
+        
+        $this->renew();
     }
     
     /**
@@ -80,7 +88,7 @@ class Logger extends PluginBase {
      * @return void
      */
     public function info(string $message) : void{
-        $this->setMessage($message, self::INFO);
+        $this->setMessage($message . PHP_EOL, self::INFO);
     }
     
     /**
@@ -89,7 +97,7 @@ class Logger extends PluginBase {
      * @return void
      */
     public function warning(string $message) : void{
-        $this->setMessage($message, self::WARNING);
+        $this->setMessage($message . PHP_EOL, self::WARNING);
     }
     
     /**
@@ -98,15 +106,45 @@ class Logger extends PluginBase {
      * @return void
      */
     public function error(string $message) : void{
-        $this->setMessage($message, self::ERROR);
+        $this->setMessage($message . PHP_EOL, self::ERROR);
     }
     
     /**
      * Critical Logger
      * @param string $message
+     * @return void
      */
     public function critical(string $message) : void{
-        $this->setMessage($message, self::CRITICAL);
+        $this->setMessage($message . PHP_EOL, self::CRITICAL);
+    }
+    
+    
+    /**
+     * Emergency Logger 
+     * @param string $message
+     * @return void
+     */
+    public function emergency(string $message) :void{
+        $this->setMessage($message . PHP_EOL, self::EMERGENCY);
+    }
+    
+    /**
+     * Alert Logger
+     * @param string $message
+     * @return void
+     */
+    public function alert(string $message) : void{
+        $this->setMessage($message . PHP_EOL, self::ALERT);
+    }
+    
+    /**
+     * Custom Prefixed Logger.
+     * @param string $message
+     * @param string $prefix
+     * @return void
+     */
+    public function custom(string $message, string $prefix) : void{
+        $this->setMessage($message . PHP_EOL, self::CUSTOM, $prefix);
     }
     
     /**
@@ -114,26 +152,28 @@ class Logger extends PluginBase {
      * DO NOT CALL DIRECTLY!
      * @return void
      */
-    private function setMessage(string $message, int $type){
-        if (!is_save()){
-            $this->save();
-        }
-        
+    private function setMessage(string $message, int $type, ?string $custom_prefix = "UNKNOWN") : void{
         switch($type){
             case self::INFO:
-                @file_put_contents(vsprintf($format, [$this->getTime(), $this->info, $message]), $this->getLoggerPath());
+                Utils::assumeNotFalse(@file_put_contents($this->getLoggerPath(), vsprintf($this->format, [$this->getTime(), $this->info, $message]), FILE_APPEND));
                 break;
             case self::WARNING:
-                @file_put_contents(vsprintf($format, [$this->getTime(), $this->warning, $message]), $this->getLoggerPath());
+                Utils::assumeNotFalse(@file_put_contents($this->getLoggerPath(), vsprintf($this->format, [$this->getTime(), $this->warning, $message]), FILE_APPEND));
                 break;
             case self::CRITICAL:
-                @file_put_contents(vsprintf($format, [$this->getTime(), $this->critical, $message]), $this->getLoggerPath());
+                Utils::assumeNotFalse(@file_put_contents($this->getLoggerPath(), vsprintf($this->format, [$this->getTime(), $this->critical, $message]), FILE_APPEND));
                 break;
             case self::ERROR:
-                @file_put_contents(vsprintf($format, [$this->getTime(), $this->error, $message]), $this->getLoggerPath());
+                Utils::assumeNotFalse(@file_put_contents($this->getLoggerPath(), vsprintf($this->format, [$this->getTime(), $this->error, $message]), FILE_APPEND));
                 break;
             case self::ALERT:
-                @file_put_contents(vsprintf($format, [$this->getTime(), $this->alert, $message]), $this->getLoggerPath());
+                Utils::assumeNotFalse(@file_put_contents($this->getLoggerPath(), vsprintf($this->format, [$this->getTime(), $this->alert, $message]), FILE_APPEND));
+                break;
+            case self::EMERGENCY:
+                Utils::assumeNotFalse(@file_put_contents($this->getLoggerPath(), vsprintf($this->format, [$this->getTime(), $this->emergency, $message]), FILE_APPEND));
+                break;
+            case self::CUSTOM:
+                Utils::assumeNotFalse(@file_put_contents($this->getLoggerPath(), vsprintf($this->format, [$this->getTime(), $custom_prefix, $message]), FILE_APPEND));
                 break;
             default:
                 throw new LoggerException("Invalid logger type given. Possible invalid operation provided.");
@@ -146,7 +186,7 @@ class Logger extends PluginBase {
      * DO NOT CALL DIRECTLY!
      * @return string
      */
-    private function getTime() : string {
+    private function getTime() : string{
         $dateNow = new DateTime("now");
         
         return $dateNow->format($this->date_format);
@@ -156,12 +196,13 @@ class Logger extends PluginBase {
      * Renew the logger.
      * @return void
      */
-    public function renew() : void{
-        if(!is_save()){
-            $this->save();
+    private function renew() : void{
+        if(!file_exists($this->newLoggerPath())){
+            Utils::assumeNotFalse(@rename($this->getLoggerPath(), $this->newLoggerPath()));
+        } else {
+            Utils::assumeNotFalse(@file_put_contents($this->getLoggerPath(), str_repeat("-", 60) . PHP_EOL, FILE_APPEND));
         }
-        
-        @rename(vsprintf($this->current_output, [$this->getFileType()]), vsprintf($this->output, [$now->format("m-d-y"), $this->getFileType()]));
+        $this->is_save = true;
     }
     
     /**
@@ -176,33 +217,24 @@ class Logger extends PluginBase {
      * Sets the file type.
      * @return void
      */
-    private function setFileType(string $filetype) : void{
+    public function setFileType(string $file_type) : void{
         $this->file_type = $file_type;
-    }
-    
-    /**
-     * Setup the Logger()
-     * @return void
-     */
-    public static function setup() : void{
-        $this->setFileType("log");
-        
-        if (!$this->is_save()){
-            $this->save();
-        }
     }
     
     /**
      * New logger.
      * @return void
      */
-    public function new() : bool{
+    private function new() : bool{
         if (!file_exists($this->getLoggerPath())){
-            @file_put_contents($this->getLog
+            Utils::assumeNotFalse(@file_put_contents($this->getLoggerPath(), str_repeat("-", 30) . $this->plugin->getDescription()->getFullName() . str_repeat("-", 30) . PHP_EOL, FILE_APPEND));
             return true;
         } else {
-            throw new LoggerException("Cannot Logger->new() because the file is exists. Please use Logger->renew() instead.");
+            throw new LoggerException("Cannot Logger->new() because the file is exists. Please use Logger->renew() instead. This is possible to be a bug.");
+            return false;
         }
+        
+        $this->is_save = true;
     }
     
     /**
@@ -210,7 +242,7 @@ class Logger extends PluginBase {
      * @return void
      */
     public function getLoggerPath() : string{
-        return vsprintf($this->current_output, [$this->getFileType()]);
+        return $this->getDataPath() . "/" . vsprintf($this->current_output, [$this->getFileType()]);
     }
     
     /**
@@ -225,8 +257,18 @@ class Logger extends PluginBase {
      * Gets the data path of server.
      * @return string
      */
-    public static function getDataPath() :string{
-        return $this->getServer()->getDataPath();
+    private function getDataPath() : string{
+        return $this->dataPath;
     }
     
+    /**
+     * New Logger Path()
+     * @return void
+     */
+    private function newLoggerPath() : string{
+        
+        $now = new DateTime("now");
+        
+        return $this->getDataPath() . "/" . vsprintf($this->output, [$now->format("m-d-y"), $this->getFileType()]);
+    }
 }

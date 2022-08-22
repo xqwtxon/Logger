@@ -1,0 +1,8 @@
+---
+name: ExamplePlugin
+author: xqwtxon
+api: 4.0.0
+version: 1.0.0
+main: ExamplePlugin\Main
+description: ExamplePlugin for Logger on PocketMine-MP.
+...

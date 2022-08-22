@@ -3,7 +3,7 @@ name: Logger
 version: 0.0.1
 author: xqwtxon
 api: 4.0.0
-main: xqwtxon\Logger
-src-namespace-prefix: xqwtxon
+main: xqwtxon\Logger\LoggerBase
+src-namespace-prefix: xqwtxon\Logger
 description: Logger for PocketMine-MP
 ...
