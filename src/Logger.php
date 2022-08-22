@@ -52,6 +52,9 @@ class Logger implements LoggerInterface {
     /** @var self $instance */
     private static self $instance;
     
+    /** @var LoggerBase $plugin */
+    private ?LoggerBase $plugin = null;
+    
     /**
      * The constructor.
      * @param string $dataPath
