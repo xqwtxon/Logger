@@ -1,0 +1,7 @@
+---
+name: CustomLogger
+version: 0.0.1
+main: xqwtxon\CustomLogger\CustomLoggerBase
+api: 4.7.3
+src-namespace-prefix: xqwtxon\CustomLogger
+...
