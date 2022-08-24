@@ -16,7 +16,6 @@ use xqwtxon\Logger\Logger;
 class CustomLogger extends Logger {
 
 	private string $prefix;
-	private string $dataPath;
 
 	public function __construct(string $dataPath, string $prefix){
 		$this->dataPath = $dataPath;
