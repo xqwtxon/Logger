@@ -11,6 +11,13 @@ vendor/*
 # github related... and project editors...
 .idea/*
 .git/*
+.DS_STORE/*
 
 # tools such phpstan or php-cs-fixer
 tools/*
+*.exe
+*.so
+*.dll
+
+# vscode etc.
+*.prj
