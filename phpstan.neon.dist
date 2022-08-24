@@ -3,4 +3,4 @@ parameters:
 	paths:
 		- ./src
 	ignoreErrors:
-		- "#Call to an undefined static method pocketmine\utils\Utils::assumeNotFalse().#"
+		- "#Call to an undefined static method pocketmine\\utils\\Utils\:\:assumeNotFalse()\.$#"
