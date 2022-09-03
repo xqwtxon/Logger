@@ -6,12 +6,12 @@ projects:
   ExamplePlugin-CustomLogger:
     path: example/CustomLogger/
     libs:
-      - src: ""
+      - src: xqwtxon/Logger/Logger
         version: ^0.0.1
   ExamplePlugin-Logger:
     path: example/ExamplePlugin/
     libs:
-      - src: ""
+      - src: xqwtxon/Logger/Logger
         version: ^0.0.1
   Logger:
     path: ""
