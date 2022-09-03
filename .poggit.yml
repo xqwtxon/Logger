@@ -3,9 +3,9 @@ build-by-default: true
 branches:
 - stable
 projects:
-  example.CustomLogger:
+  ExamplePlugin-CustomLogger:
     path: example/CustomLogger/
-  example.ExamplePlugin:
+  ExamplePlugin-Logger:
     path: example/ExamplePlugin/
   Logger:
     path: ""
